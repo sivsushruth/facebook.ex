@@ -7,6 +7,7 @@ defmodule Facebook do
 
   See: https://developers.facebook.com/docs/graph-api
   """
+  @timeout 20_000
 
   alias Facebook.Config
   alias Facebook.GraphAPI
@@ -76,6 +77,11 @@ defmodule Facebook do
   @type params :: list
 
   @typedoc """
+  Additional request options for Graph API
+  """
+  @type opts :: list
+
+  @typedoc """
   Can be:
     * `:angry`
     * `:haha`
@@ -142,7 +148,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/me)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -260,7 +266,7 @@ defmodule Facebook do
                |> add_app_secret(access_token)
 
     ~s(/#{page_id}/picture)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -280,7 +286,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/me/likes)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -300,7 +306,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/#{page_id}/permissions)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -348,7 +354,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/#{page_id})
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -378,14 +384,14 @@ defmodule Facebook do
 
   """
   # credo:disable-for-lines:2 Credo.Check.Readability.MaxLineLength
-  @spec page_feed(scope, page_id, access_token, limit, fields :: String.t) :: resp
-  def page_feed(scope, page_id, access_token, limit \\ 25, fields \\ "") when limit <= 100 do
-    params = [limit: limit, fields: fields]
+  @spec page_feed(scope, page_id, access_token, limit, fields :: String.t, opts) :: resp
+  def page_feed(scope, page_id, access_token, limit \\ 25, fields \\ "", opts \\ []) when limit <= 100 do
+    params = (opts ++ [limit: limit, fields: fields])
                |> add_app_secret(access_token)
                |> add_access_token(access_token)
 
     ~s(/#{page_id}/#{scope})
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -421,7 +427,7 @@ defmodule Facebook do
             |> String.downcase
 
     ~s(/#{object_id}/#{scp})
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
       |> get_summary
       |> summary_count
@@ -459,7 +465,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/#{object_id}/reactions)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
       |> get_summary
       |> summary_count
@@ -488,7 +494,7 @@ defmodule Facebook do
                |> add_access_token(access_token)
 
     ~s(/#{object_id})
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
       |> summary_count_all
   end
@@ -569,7 +575,7 @@ defmodule Facebook do
     params = []
                |> add_access_token(access_token)
     ~s(/#{client_id}/accounts/test-users)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
@@ -612,7 +618,7 @@ defmodule Facebook do
     params = add_access_token([input_token: input_token], access_token)
 
     ~s(/debug_token)
-    |> GraphAPI.get([], params: params)
+    |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
     |> ResponseFormatter.format_response()
   end
 
@@ -620,7 +626,7 @@ defmodule Facebook do
   # response
   defp get_access_token(params) do
     ~s(/oauth/access_token)
-      |> GraphAPI.get([], params: params)
+      |> GraphAPI.get([], params: params, timeout: 50_000, recv_timeout: 50_000)
       |> ResponseFormatter.format_response
   end
 
